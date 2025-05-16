@@ -2,7 +2,12 @@ package edu.uoc.pac4.data;
 
 import edu.uoc.pac4.exception.DataRepositoryException;
 
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DataRepository implements Cloneable {
 
@@ -95,5 +100,20 @@ public class DataRepository implements Cloneable {
         } catch (Exception e) {
             throw new CloneNotSupportedException(e.toString());
         }
+    }
+
+    public List<DataEntry> getDataEntriesPerDay(LocalDate date) {
+        return dataEntries.values().stream()
+                .filter(dataEntry -> dataEntry.getTimestamp().toLocalDate().equals(date))
+                .sorted(Comparator.comparing(DataEntry::getTimestamp))
+                .collect(Collectors.toList());
+    }
+
+    public Map<String, Long> getDataEntriesCountPerParticle() {
+        return dataEntries.values().stream()
+                .collect(Collectors.groupingBy(
+                        dataEntry -> dataEntry.getParticle().getClass().getSimpleName(),
+                        Collectors.counting()
+                ));
     }
 }
